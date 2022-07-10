@@ -1,38 +1,99 @@
-from collections import namedtuple
-import altair as alt
-import math
 import pandas as pd
 import streamlit as st
+import transformations as tr
+
+skill_color_list = ['rgba(8,17,129,.8)','rgba(38,19,142,.8)','rgba(63,21,153,.8)',
+              'rgba(81,24,157,.8)','rgba(99,26,161,.8)','rgba(118,32,158,.8)',
+              'rgba(126,39,155,.8)','rgba(152,48,146,.8)','rgba(166,59,138,.8)',
+              'rgba(179,72,127,.8)','rgba(191,84,117,.8)','rgba(203,98,107,.8)',
+              'rgba(216,119,97,.8)','rgba(223,126,92,.8)','rgba(229,142,86,.8)',
+              'rgba(235,155,82,.8)','rgba(241,177,79,.8)','rgba(244,195,78,.8)',
+              'rgba(243,215,81,.8)','rgba(243,235,85,.8)']
 
 """
-# Welcome to Streamlit!
-
-Edit `/streamlit_app.py` to customize this app to your heart's desire :heart:
-
-If you have any questions, checkout our [documentation](https://docs.streamlit.io) and [community
-forums](https://discuss.streamlit.io).
-
-In the meantime, below is an example of what you can do with just a few lines of code:
+# Visualize your nonlinear career!
 """
+cola, colb = st.columns(2)
+with cola:
+    st.session_state['marker_increase'] = st.slider("Marker size", 1, 8, 1,key='marker_size')
+    
+with colb:
+    st.session_state['text_size'] = st.slider("Text size", 10, 16, 10,key='text-size')
+
+st.session_state['plot_radius'] =  60
+rad_adjust = 90
 
 
-with st.echo(code_location='below'):
-    total_points = st.slider("Number of points in spiral", 1, 5000, 2000)
-    num_turns = st.slider("Number of turns in spiral", 1, 100, 9)
+st.session_state['df'] = pd.DataFrame()
+st.session_state['df_roles'] = pd.DataFrame()
+#with st.echo(code_location='below'):
+with st.sidebar:
+    st.session_state['total_roles'] = st.slider("Number of roles", 1, 10)
+    #add_to_session('total_roles',st.slider("Number of roles", 1, 10))
+    #for n in range(0, total_roles):
+     #   globals()['role' % n] = 'blank'
+    
+    st.session_state['blank_roles'] = ['Role'+ ' ' +(str(x+1)) for x in range(0,st.session_state.total_roles)]
+    #add_to_session('blank_roles',['Role'+ ' ' +(str(x+1)) for x in range(0,st.session_state['total_roles'])])
+    #Create a dict for blank roles
+    st.session_state['blank_dict'] = {}
+    for x in st.session_state.blank_roles:
+        st.session_state['blank_dict'][x] = {'Role_name':'blank','Years':0,'Skills':[]}
 
-    Point = namedtuple('Point', 'x y')
-    data = []
+   # df = pd.DataFrame(columns=['Role','Years'],data=[[x,1] for x in blank_roles])
 
-    points_per_turn = total_points / num_turns
+    for i,x in enumerate(st.session_state['blank_roles']):
+        #blank_dict = persistdata()
+        with st.expander(label = x, expanded=False):
+            col1, col2 = st.columns(2)
+            with col1:
+                #Name of role
+                st.session_state.blank_dict[x]['Role_name'] = st.text_input(label = 'Name of role',placeholder=x,key="blank"+str(i+1))
+                
+            with col2:
+                st.session_state.blank_dict[x]['Years'] = st.slider("Number of years in role", min_value=1.0, max_value=15.0, value=1.0, step=.25, key=x+'_'+str(i))
+            st.session_state.blank_dict[x]['Skills'].append(st.text_input(label = 'Top skill 1',placeholder='Most used skill in this role',key=x+'_'+'skill1'))
+            st.session_state.blank_dict[x]['Skills'].append(st.text_input(label = 'Top skill 2',placeholder='Next most used skill in this role',key=x+'_'+'skill2'))
+            st.session_state.blank_dict[x]['Skills'].append(st.text_input(label = 'Top skill 3',placeholder='Next most used skill in this role',key=x+'_'+'skill3'))
+            st.session_state.blank_dict[x]['Skills'].append(st.text_input(label = 'Top skill 4',placeholder='Next most used skill in this role',key=x+'_'+'skill4'))
 
-    for curr_point_num in range(total_points):
-        curr_turn, i = divmod(curr_point_num, points_per_turn)
-        angle = (curr_turn + 1) * 2 * math.pi * i / points_per_turn
-        radius = curr_point_num / total_points
-        x = radius * math.cos(angle)
-        y = radius * math.sin(angle)
-        data.append(Point(x, y))
+for x in st.session_state.blank_dict:
+    temp = (pd.DataFrame(index=[x for x in st.session_state.blank_dict[x]['Skills'] if x !=""],
+                         columns=[st.session_state.blank_dict[x]['Role_name']],
+                         data=st.session_state.blank_dict[x]["Years"]))
+    st.session_state.df = pd.concat([st.session_state.df,temp],axis=1)
+    st.session_state.df_roles = st.session_state.df.T.max(axis=1).to_frame().reset_index()
+    st.session_state.df_roles.columns = ['Role','Years']    
 
-    st.altair_chart(alt.Chart(pd.DataFrame(data), height=500, width=500)
-        .mark_circle(color='#0068c9', opacity=0.5)
-        .encode(x='x:Q', y='y:Q'))
+try:
+    st.session_state.df = st.session_state.df.fillna(0.0)
+    st.session_state.df['Years'] = st.session_state.df.sum(axis=1)
+    st.session_state.df = st.session_state.df[st.session_state.df['Years'] != 0]
+    st.session_state.df = st.session_state.df.sort_values('Years', ascending=False)
+    st.session_state.df_roles = st.session_state.df_roles.fillna(0.0)
+    st.session_state['skill_role_dict'] = tr.create_skill_role_dict(df=st.session_state.df)
+    st.session_state['skill_dict'], st.session_state['skill_intervals'] = tr.skill_plot_data(df=st.session_state.df)
+    st.session_state['role_dict'] = tr.create_role_dict(
+        df_roles=st.session_state.df_roles, 
+        plot_radius=st.session_state.plot_radius
+        )
+
+    st.session_state['fig'] = tr.create_polar_chart(
+        df = st.session_state.df, 
+        df_roles = st.session_state.df_roles, 
+        skill_role_dict = st.session_state.skill_role_dict, 
+        skill_intervals = st.session_state.skill_intervals, 
+        role_dict = st.session_state.role_dict, 
+        skill_dict = st.session_state.skill_dict,
+        skill_color_list = skill_color_list,
+        marker_increase = st.session_state.marker_increase, 
+        rad_adjust = rad_adjust,
+        plot_radius=st.session_state.plot_radius,
+        text_size=st.session_state.text_size)
+
+    st.plotly_chart(st.session_state.fig)
+    
+except Exception as e:
+    st.write('More data needed to create chart')
+    #st.write(e)
+
