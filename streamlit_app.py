@@ -11,14 +11,14 @@ skill_color_list = ['rgba(8,17,129,.8)','rgba(38,19,142,.8)','rgba(63,21,153,.8)
               'rgba(243,215,81,.8)','rgba(243,235,85,.8)']
 
 """
-# Visualize your nonlinear career!
+# Visualizing your nonlinear career
 """
 cola, colb = st.columns(2)
 with cola:
-    st.session_state['marker_increase'] = st.slider("Marker size", 1, 8, 1,key='marker_size')
+    st.session_state['marker_increase'] = st.slider("Marker size", 1, 8, 4,key='marker_size')
     
 with colb:
-    st.session_state['text_size'] = st.slider("Text size", 10, 16, 10,key='text-size')
+    st.session_state['text_size'] = st.slider("Text size", 10, 17, 13,key='text-size')
 
 st.session_state['plot_radius'] =  60
 rad_adjust = 90
@@ -28,19 +28,23 @@ st.session_state['df'] = pd.DataFrame()
 st.session_state['df_roles'] = pd.DataFrame()
 #with st.echo(code_location='below'):
 with st.sidebar:
-    st.session_state['total_roles'] = st.slider("Number of roles", 1, 10)
+    st.title("Get started here!")
+    st.markdown("1. Choose the number of positions you've held")
+    st.markdown("2. Expand and collapse positions to fill in details")
+    st.markdown("3. Adjust the sliders to change the visualization")
+    st.markdown(" ")
+    st.session_state['total_roles'] = st.slider("Number of positions", 1, 10)
     #add_to_session('total_roles',st.slider("Number of roles", 1, 10))
     #for n in range(0, total_roles):
      #   globals()['role' % n] = 'blank'
     
-    st.session_state['blank_roles'] = ['Role'+ ' ' +(str(x+1)) for x in range(0,st.session_state.total_roles)]
+    st.session_state['blank_roles'] = ['Position'+ ' ' +(str(x+1)) for x in range(0,st.session_state.total_roles)]
     #add_to_session('blank_roles',['Role'+ ' ' +(str(x+1)) for x in range(0,st.session_state['total_roles'])])
     #Create a dict for blank roles
     st.session_state['blank_dict'] = {}
     for x in st.session_state.blank_roles:
         st.session_state['blank_dict'][x] = {'Role_name':'blank','Years':0,'Skills':[]}
 
-   # df = pd.DataFrame(columns=['Role','Years'],data=[[x,1] for x in blank_roles])
 
     for i,x in enumerate(st.session_state['blank_roles']):
         #blank_dict = persistdata()
@@ -48,7 +52,7 @@ with st.sidebar:
             col1, col2 = st.columns(2)
             with col1:
                 #Name of role
-                st.session_state.blank_dict[x]['Role_name'] = st.text_input(label = 'Name of role',placeholder=x,key="blank"+str(i+1))
+                st.session_state.blank_dict[x]['Role_name'] = st.text_input(label = 'Name of position',placeholder=x,key="blank"+str(i+1))
                 
             with col2:
                 st.session_state.blank_dict[x]['Years'] = st.slider("Number of years in role", min_value=1.0, max_value=15.0, value=1.0, step=.25, key=x+'_'+str(i))

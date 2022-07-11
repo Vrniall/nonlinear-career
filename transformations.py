@@ -1,7 +1,5 @@
 import numpy as np
-import pandas as pd
 import textwrap as tw
-import plotly
 import plotly.graph_objects as go
 
 
@@ -185,7 +183,7 @@ def create_polar_chart(df, df_roles, skill_role_dict,role_dict,skill_dict, skill
                 marker_color=skill_color_list[index],
                 marker_size=marker_size*marker_increase,
                 text=customwrap(marker_name),
-                textposition=text_pos,
+                textposition=pos,
                 textfont = (
                     {'color':'rgba(108, 122, 137,7)',
                     'size':text_size
