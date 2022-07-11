@@ -1,3 +1,4 @@
+from turtle import position
 import numpy as np
 import textwrap as tw
 import plotly.graph_objects as go
@@ -126,7 +127,8 @@ def create_polar_chart(
     rad_adjust, 
     plot_radius,
     text_size,
-    line_width):
+    line_width,
+    showlegend=False):
     #Create figure
     fig = go.Figure()
     
@@ -172,6 +174,7 @@ def create_polar_chart(
     # Plotting skills in circle path with colors    
     for index,x in enumerate(skill_intervals):
         marker_name = df.index[index]
+        marker_size_float = df['Years'][index]
         marker_size = int(np.round(df['Years'][index]))
         text_pos = ['middle right', 'top right', 'top left', 'middle left', 'bottom left', 'bottom right']
         if x-rad_adjust == 0:
@@ -189,7 +192,7 @@ def create_polar_chart(
         
         fig.add_trace(
             go.Scatterpolar(
-                name = marker_name+''+'color',
+                name = marker_name+': '+str(marker_size_float)+' '+'years',
                 r = [plot_radius],
                 theta = [x-rad_adjust],
                 mode = 'markers+text',
@@ -203,7 +206,7 @@ def create_polar_chart(
                     }
                 ),
                 hovertemplate = '{}: {} years<extra></extra>'.format(marker_name, marker_size),
-                showlegend=False
+                showlegend=showlegend
         ))
 
     # Plotting roles in a line with white background
@@ -268,6 +271,12 @@ def create_polar_chart(
         plot_bgcolor='rgba(0,0,0,0)',
         #autosize=True,
         template=None,
+        legend=dict(
+            yanchor="top",
+            y=0.99,
+            xanchor="left",
+            x=-0.9,
+        ),
         polar = dict(
             bgcolor = "rgba(0, 0, 0,0)",
             angularaxis = dict(
@@ -288,6 +297,6 @@ def create_polar_chart(
                 tickcolor='rgba(223,223, 223, 0)'
             )
         ))
-
+    
     return fig
 

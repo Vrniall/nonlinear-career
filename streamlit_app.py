@@ -2,6 +2,7 @@ import pandas as pd
 import streamlit as st
 import transformations as tr
 import io
+import distutils
 
 skill_color_list = ['rgba(8,17,129,.8)','rgba(38,19,142,.8)','rgba(63,21,153,.8)',
               'rgba(81,24,157,.8)','rgba(99,26,161,.8)','rgba(118,32,158,.8)',
@@ -14,15 +15,6 @@ skill_color_list = ['rgba(8,17,129,.8)','rgba(38,19,142,.8)','rgba(63,21,153,.8)
 """
 # Visualizing your nonlinear career
 """
-cola, colb, colc = st.columns(3)
-with cola:
-    st.session_state['marker_increase'] = st.slider("Marker size", 1, 8, 4,key='marker_size')
-    
-with colb:
-    st.session_state['text_size'] = st.slider("Text size", 10, 17, 13,key='text-size')
-
-with colc:
-    st.session_state['line_width'] = st.slider("Line width", 1, 8, 1,)
 
 st.session_state['plot_radius'] =  60
 rad_adjust = 90
@@ -33,7 +25,7 @@ st.session_state['df_roles'] = pd.DataFrame()
 #with st.echo(code_location='below'):
 with st.sidebar:
     st.markdown("[![Data and Stroies](https://github.com/michael-william/nonlinear-career/raw/master/images/dataandstories_logo%20200.png)](http://dataandstories.com)")
-    st.write("Check out this [article](https://dataandstories.com) to learn more about the nonlinear career path.")
+    st.caption("Check out this [article](https://dataandstories.com) to learn more about the nonlinear career path.")
     st.title("Get started here!")
     st.write("1. Choose the number of positions you've held")
     st.write("2. Expand/collapse positions to enter up to 4 skills")
@@ -58,14 +50,18 @@ with st.sidebar:
             col1, col2 = st.columns(2)
             with col1:
                 #Name of role
-                st.session_state.blank_dict[x]['Role_name'] = st.text_input(label = 'Name of position',placeholder=x,key="blank"+str(i+1))
+                st.session_state.blank_dict[x]['Role_name'] = st.text_input(
+                    label = 'Name of position',
+                    placeholder=x,
+                    max_chars=25,
+                    key="blank"+str(i+1))
                 
             with col2:
                 st.session_state.blank_dict[x]['Years'] = st.slider("Years in position", min_value=0.5, max_value=15.0, value=1.0, step=.25, key=x+'_'+str(i))
-            st.session_state.blank_dict[x]['Skills'].append(st.text_input(label = 'Top skill 1',placeholder='Most used skill in this position',key=x+'_'+'skill1'))
-            st.session_state.blank_dict[x]['Skills'].append(st.text_input(label = 'Top skill 2',placeholder='Next most used skill or leave blank',key=x+'_'+'skill2'))
-            st.session_state.blank_dict[x]['Skills'].append(st.text_input(label = 'Top skill 3',placeholder='Next most used skill or leave blank',key=x+'_'+'skill3'))
-            st.session_state.blank_dict[x]['Skills'].append(st.text_input(label = 'Top skill 4',placeholder='Next most used skill or leave blank',key=x+'_'+'skill4'))
+            st.session_state.blank_dict[x]['Skills'].append(st.text_input(label = 'Top skill 1',placeholder='Most used skill in this position', max_chars=25, key=x+'_'+'skill1'))
+            st.session_state.blank_dict[x]['Skills'].append(st.text_input(label = 'Top skill 2',placeholder='Next most used skill or leave blank', max_chars=25, key=x+'_'+'skill2'))
+            st.session_state.blank_dict[x]['Skills'].append(st.text_input(label = 'Top skill 3',placeholder='Next most used skill or leave blank', max_chars=25, key=x+'_'+'skill3'))
+            st.session_state.blank_dict[x]['Skills'].append(st.text_input(label = 'Top skill 4',placeholder='Next most used skill or leave blank', max_chars=25, key=x+'_'+'skill4'))
 
 for x in st.session_state.blank_dict:
     temp = (pd.DataFrame(index=[x for x in st.session_state.blank_dict[x]['Skills'] if x !=""],
@@ -76,6 +72,7 @@ for x in st.session_state.blank_dict:
     st.session_state.df_roles.columns = ['Role','Years']    
 
 try:
+    
     st.session_state.df = st.session_state.df.fillna(0.0)
     st.session_state.df['Years'] = st.session_state.df.sum(axis=1)
     st.session_state.df = st.session_state.df[st.session_state.df['Years'] != 0]
@@ -83,6 +80,22 @@ try:
     st.session_state.df_roles = st.session_state.df_roles.fillna(0.0)
     st.session_state['skill_role_dict'] = tr.create_skill_role_dict(df=st.session_state.df)
     st.session_state['skill_dict'], st.session_state['skill_intervals'] = tr.skill_plot_data(df=st.session_state.df)
+    #Controls for graph
+    cola, colb, colc, cold = st.columns(4)
+    with cola:
+        st.session_state['marker_increase'] = st.slider("Marker size", 1, 8, 4,key='marker_size')
+        
+    with colb:
+        st.session_state['text_size'] = st.slider("Text size", 10, 17, 13,key='text-size')
+
+    with colc:
+        st.session_state['line_width'] = st.slider("Line width", 1, 8, 1,)
+
+    with cold:
+        st.session_state['showlegend'] = bool(distutils.util.strtobool(st.radio(
+        "Show skill legend",
+        ('False', 'True'))))
+    
     st.session_state['role_dict'] = tr.create_role_dict(
         df_roles=st.session_state.df_roles, 
         plot_radius=st.session_state.plot_radius
@@ -100,7 +113,8 @@ try:
         rad_adjust = rad_adjust,
         plot_radius=st.session_state.plot_radius,
         text_size=st.session_state.text_size,
-        line_width = st.session_state.line_width)
+        line_width = st.session_state.line_width,
+        showlegend=st.session_state.showlegend)
 
     # Displaying the chart
     st.plotly_chart(st.session_state.fig)
