@@ -217,5 +217,3 @@ wheel==0.37.0
 widgetsnbextension==3.6.1
 
 zipp==3.6.0
-
-zlib==1.2.11
