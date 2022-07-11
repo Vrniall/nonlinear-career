@@ -178,11 +178,7 @@ smmap==5.0.0
 
 sniffio==1.2.0
 
-sqlite==3.36.0
-
 streamlit==1.10.0
-
-streamlit-aggrid==0.2.3.post2
 
 style==1.1.0
 
