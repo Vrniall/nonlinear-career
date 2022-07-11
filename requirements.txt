@@ -110,8 +110,6 @@ notebook==6.4.5
 
 numpy==1.21.4
 
-openssl==1.1.1l
-
 packaging==21.0
 
 pandas==1.4.3
