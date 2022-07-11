@@ -26,8 +26,6 @@ blinker==1.4
 
 brotlipy==0.7.0
 
-bzip2
-
 ca-certificates==2021.10.26
 
 cachetools==5.2.0
