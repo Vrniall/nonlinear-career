@@ -114,7 +114,20 @@ def skill_in_role_line(role_dict,skill_dict,skill,role,plot_radius,rad_adjust):
     
     #return r_line, theta_line
 
-def create_polar_chart(df, df_roles, skill_role_dict,role_dict,skill_dict, skill_intervals, skill_color_list,marker_increase, rad_adjust, plot_radius,text_size):
+def create_polar_chart(
+    df, 
+    df_roles, 
+    skill_role_dict,
+    role_dict,
+    skill_dict, 
+    skill_intervals, 
+    skill_color_list,
+    marker_increase, 
+    rad_adjust, 
+    plot_radius,
+    text_size,
+    line_width):
+    #Create figure
     fig = go.Figure()
     
     # Plotting lines from skill plot positions to each related role
@@ -134,7 +147,7 @@ def create_polar_chart(df, df_roles, skill_role_dict,role_dict,skill_dict, skill
                 theta = theta_line, #y
                 mode = 'lines',
                 line_color = 'rgba(244,195,78,.8)',
-                line={'width':.5},
+                line={'width':line_width},
                 hoverinfo='skip',
                 showlegend=False
         ))
@@ -165,13 +178,13 @@ def create_polar_chart(df, df_roles, skill_role_dict,role_dict,skill_dict, skill
             pos = text_pos[0]
         if 0 < x-rad_adjust < 90:
             pos = text_pos[1]
-        if 90 == x-rad_adjust < 180: 
+        if 90 <= x-rad_adjust < 180: 
             pos = text_pos[2]
         if x-rad_adjust == 180:
             pos = text_pos[3]
         if 180 < x-rad_adjust < 270:
             pos = text_pos[4]
-        if 270 < x-rad_adjust < 366: 
+        if 270 <= x-rad_adjust < 366: 
             pos = text_pos[5]
         
         fig.add_trace(
@@ -242,7 +255,7 @@ def create_polar_chart(df, df_roles, skill_role_dict,role_dict,skill_dict, skill
 
 
     fig.update_layout(
-        title='A non-linear career path',
+        title='Your nonlinear career',
         titlefont =(
                     {'color':'rgba(108, 122, 137,1)',
                     'size':18

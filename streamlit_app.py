@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 import transformations as tr
+import io
 
 skill_color_list = ['rgba(8,17,129,.8)','rgba(38,19,142,.8)','rgba(63,21,153,.8)',
               'rgba(81,24,157,.8)','rgba(99,26,161,.8)','rgba(118,32,158,.8)',
@@ -13,12 +14,15 @@ skill_color_list = ['rgba(8,17,129,.8)','rgba(38,19,142,.8)','rgba(63,21,153,.8)
 """
 # Visualizing your nonlinear career
 """
-cola, colb = st.columns(2)
+cola, colb, colc = st.columns(3)
 with cola:
     st.session_state['marker_increase'] = st.slider("Marker size", 1, 8, 4,key='marker_size')
     
 with colb:
     st.session_state['text_size'] = st.slider("Text size", 10, 17, 13,key='text-size')
+
+with colc:
+    st.session_state['line_width'] = st.slider("Line width", 1, 8, 1,)
 
 st.session_state['plot_radius'] =  60
 rad_adjust = 90
@@ -28,10 +32,12 @@ st.session_state['df'] = pd.DataFrame()
 st.session_state['df_roles'] = pd.DataFrame()
 #with st.echo(code_location='below'):
 with st.sidebar:
+    st.markdown("[![Data and Stroies](https://github.com/michael-william/nonlinear-career/raw/master/images/dataandstories_logo%20200.png)](http://dataandstories.com)")
+    st.write("Check out this [article](https://dataandstories.com) to learn more about the nonlinear career path.")
     st.title("Get started here!")
-    st.markdown("1. Choose the number of positions you've held")
-    st.markdown("2. Expand and collapse positions to fill in details")
-    st.markdown("3. Adjust the sliders to change the visualization")
+    st.write("1. Choose the number of positions you've held")
+    st.write("2. Expand/collapse positions to enter up to 4 skills")
+    st.write("3. Adjust the sliders to change the visualization")
     st.markdown(" ")
     st.session_state['total_roles'] = st.slider("Number of positions", 1, 10)
     #add_to_session('total_roles',st.slider("Number of roles", 1, 10))
@@ -55,11 +61,11 @@ with st.sidebar:
                 st.session_state.blank_dict[x]['Role_name'] = st.text_input(label = 'Name of position',placeholder=x,key="blank"+str(i+1))
                 
             with col2:
-                st.session_state.blank_dict[x]['Years'] = st.slider("Number of years in role", min_value=1.0, max_value=15.0, value=1.0, step=.25, key=x+'_'+str(i))
-            st.session_state.blank_dict[x]['Skills'].append(st.text_input(label = 'Top skill 1',placeholder='Most used skill in this role',key=x+'_'+'skill1'))
-            st.session_state.blank_dict[x]['Skills'].append(st.text_input(label = 'Top skill 2',placeholder='Next most used skill in this role',key=x+'_'+'skill2'))
-            st.session_state.blank_dict[x]['Skills'].append(st.text_input(label = 'Top skill 3',placeholder='Next most used skill in this role',key=x+'_'+'skill3'))
-            st.session_state.blank_dict[x]['Skills'].append(st.text_input(label = 'Top skill 4',placeholder='Next most used skill in this role',key=x+'_'+'skill4'))
+                st.session_state.blank_dict[x]['Years'] = st.slider("Years in position", min_value=0.5, max_value=15.0, value=1.0, step=.25, key=x+'_'+str(i))
+            st.session_state.blank_dict[x]['Skills'].append(st.text_input(label = 'Top skill 1',placeholder='Most used skill in this position',key=x+'_'+'skill1'))
+            st.session_state.blank_dict[x]['Skills'].append(st.text_input(label = 'Top skill 2',placeholder='Next most used skill or leave blank',key=x+'_'+'skill2'))
+            st.session_state.blank_dict[x]['Skills'].append(st.text_input(label = 'Top skill 3',placeholder='Next most used skill or leave blank',key=x+'_'+'skill3'))
+            st.session_state.blank_dict[x]['Skills'].append(st.text_input(label = 'Top skill 4',placeholder='Next most used skill or leave blank',key=x+'_'+'skill4'))
 
 for x in st.session_state.blank_dict:
     temp = (pd.DataFrame(index=[x for x in st.session_state.blank_dict[x]['Skills'] if x !=""],
@@ -93,11 +99,26 @@ try:
         marker_increase = st.session_state.marker_increase, 
         rad_adjust = rad_adjust,
         plot_radius=st.session_state.plot_radius,
-        text_size=st.session_state.text_size)
+        text_size=st.session_state.text_size,
+        line_width = st.session_state.line_width)
 
+    # Displaying the chart
     st.plotly_chart(st.session_state.fig)
+
+    #Setting up html download button
+    buffer = io.StringIO()
+    st.session_state.fig.write_html(buffer, include_plotlyjs='cdn')
+    html_bytes = buffer.getvalue().encode()
+    # Displaying download button
+    st.download_button(
+        label='Download HTML',
+        data=html_bytes,
+        file_name='Nonlinear career.html',
+        mime='text/html'
+    )
+
     
 except Exception as e:
-    st.write('More data needed to create chart')
+    st.write("Your visualization will apprear here when you've entered enough data.")
     #st.write(e)
 
