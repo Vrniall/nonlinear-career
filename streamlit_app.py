@@ -25,7 +25,7 @@ st.session_state['df_roles'] = pd.DataFrame()
 #with st.echo(code_location='below'):
 with st.sidebar:
     st.markdown("[![Data and Stroies](https://github.com/michael-william/nonlinear-career/raw/master/images/dataandstories_logo%20200.png)](http://dataandstories.com)")
-    st.caption("Check out this [article](https://dataandstories.com) to learn more about the non-linear career path.")
+    st.caption("Check out this [article](https://www.linkedin.com/pulse/visualizing-non-linear-career-path-data-and-stories/?trackingId=7RX%2Bbl6LRu2jaa5BB4aC4Q%3D%3D) to learn more about the non-linear career path.")
     st.title("Get started here!")
     st.write("1. Choose the number of positions you've held")
     st.write("2. Expand/collapse positions to enter up to 4 skills")
