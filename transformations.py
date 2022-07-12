@@ -2,6 +2,7 @@
 import numpy as np
 import textwrap as tw
 import plotly.graph_objects as go
+import pandas as pd
 
 
 
@@ -12,9 +13,15 @@ def create_skill_role_dict(df):
     # Dictionary with roles for every skill: skills = keys and roles = values
     skill_role_dict = {}
     for i in df.index:
-        temp = df.loc[i].to_frame()
-        temp = temp[temp>0].dropna()[:-1]
-        skill_role_dict[i] = list(temp.index)
+        temp = df.copy()
+        if isinstance(temp, pd.DataFrame):
+            temp = temp.loc[i]
+            temp = temp[temp>0].dropna()[:-1]
+            skill_role_dict[i] = list(temp.index)
+        else:
+            temp = temp.loc[i].to_frame()
+            temp = temp[temp>0].dropna()[:-1]
+            skill_role_dict[i] = list(temp.index)
     
     return skill_role_dict
 
@@ -128,6 +135,7 @@ def create_polar_chart(
     plot_radius,
     text_size,
     line_width,
+    chartsize,
     showlegend=False):
     #Create figure
     fig = go.Figure()
@@ -258,14 +266,14 @@ def create_polar_chart(
 
 
     fig.update_layout(
-        title='Your nonlinear career',
+        title='Your non-linear career',
         titlefont =(
                     {'color':'rgba(108, 122, 137,1)',
                     'size':18
                     }
                 ),
-        width=600,
-        height=600,
+        width=chartsize,
+        height=chartsize,
         #margin = {'l': 300},
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',

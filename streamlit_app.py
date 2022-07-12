@@ -13,7 +13,7 @@ skill_color_list = ['rgba(8,17,129,.8)','rgba(38,19,142,.8)','rgba(63,21,153,.8)
               'rgba(243,215,81,.8)','rgba(243,235,85,.8)']
 
 """
-# Visualizing your nonlinear career
+# Visualizing your non-linear career
 """
 
 st.session_state['plot_radius'] =  60
@@ -25,7 +25,7 @@ st.session_state['df_roles'] = pd.DataFrame()
 #with st.echo(code_location='below'):
 with st.sidebar:
     st.markdown("[![Data and Stroies](https://github.com/michael-william/nonlinear-career/raw/master/images/dataandstories_logo%20200.png)](http://dataandstories.com)")
-    st.caption("Check out this [article](https://dataandstories.com) to learn more about the nonlinear career path.")
+    st.caption("Check out this [article](https://dataandstories.com) to learn more about the non-linear career path.")
     st.title("Get started here!")
     st.write("1. Choose the number of positions you've held")
     st.write("2. Expand/collapse positions to enter up to 4 skills")
@@ -81,20 +81,24 @@ try:
     st.session_state['skill_role_dict'] = tr.create_skill_role_dict(df=st.session_state.df)
     st.session_state['skill_dict'], st.session_state['skill_intervals'] = tr.skill_plot_data(df=st.session_state.df)
     #Controls for graph
-    cola, colb, colc, cold = st.columns(4)
+    cola, colb, colc = st.columns(3)
     with cola:
         st.session_state['marker_increase'] = st.slider("Marker size", 1, 8, 4,key='marker_size')
         
     with colb:
-        st.session_state['text_size'] = st.slider("Text size", 10, 17, 13,key='text-size')
+        st.session_state['text_size'] = st.slider("Text size", 10, 20, 15,key='text-size')
 
     with colc:
         st.session_state['line_width'] = st.slider("Line width", 1, 8, 1,)
-
+    
+    cold, cole = st.columns(2)
     with cold:
+        st.session_state['chartsize'] = st.slider("Chart size", 400, 800, 600,step=100,key='chart_size')
+
+    with cole:
         st.session_state['showlegend'] = bool(distutils.util.strtobool(st.radio(
         "Show skill legend",
-        ('False', 'True'))))
+        ('False', 'True'),horizontal=True)))
     
     st.session_state['role_dict'] = tr.create_role_dict(
         df_roles=st.session_state.df_roles, 
@@ -114,7 +118,9 @@ try:
         plot_radius=st.session_state.plot_radius,
         text_size=st.session_state.text_size,
         line_width = st.session_state.line_width,
-        showlegend=st.session_state.showlegend)
+        chartsize=st.session_state.chartsize,
+        showlegend=st.session_state.showlegend
+        )
 
     # Displaying the chart
     st.plotly_chart(st.session_state.fig)
@@ -127,7 +133,7 @@ try:
     st.download_button(
         label='Download HTML',
         data=html_bytes,
-        file_name='Nonlinear career.html',
+        file_name='Non-linear career.html',
         mime='text/html'
     )
 
